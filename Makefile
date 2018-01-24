@@ -1,7 +1,7 @@
 all: boardchecker
 
-netcore.o: core/netcore.c
-	gcc -g `pkg-config --cflags libevent` -c $< -o $@
+netcore.o: core/netcore.cpp
+	gcc -g -std=c++11 `pkg-config --cflags libevent` -c $< -o $@
 
 netlist.o: core/netlist.cpp
 	gcc -g -std=c++11 -c $< -o $@

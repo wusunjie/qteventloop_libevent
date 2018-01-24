@@ -1,12 +1,3 @@
-/*
-  This example program provides a trivial server program that listens for TCP
-  connections on port 9995.  When they arrive, it writes a short message to
-  each client connection, and closes each connection once it is flushed.
-
-  Where possible, it exits cleanly in response to a SIGINT (ctrl-c).
-*/
-
-
 #include <string.h>
 #include <errno.h>
 #include <stdio.h>
@@ -25,6 +16,8 @@
 #include <event2/util.h>
 #include <event2/event.h>
 
+#include <list>
+
 static void listener_cb(struct evconnlistener *, evutil_socket_t,
     struct sockaddr *, int socklen, void *);
 static void conn_readcb(struct bufferevent *, void *);
@@ -32,8 +25,16 @@ static void conn_writecb(struct bufferevent *, void *);
 static void conn_eventcb(struct bufferevent *, short, void *);
 static void signal_cb(evutil_socket_t, short, void *);
 
+struct conn {
+    int fd;
+    struct sockaddr addr;
+    struct bufferevent *bev;
+};
+
+static std::list<struct conn> conn_list;
+
 int
-mainloop(int port)
+mainloop(unsigned short port)
 {
     struct event_base *base;
     struct evconnlistener *listener;
@@ -82,12 +83,19 @@ mainloop(int port)
     return 0;
 }
 
+unsigned int
+conn_count(void)
+{
+    return conn_list.size();
+}
+
 static void
 listener_cb(struct evconnlistener *listener, evutil_socket_t fd,
     struct sockaddr *sa, int socklen, void *user_data)
 {
     struct event_base *base = (struct event_base *)user_data;
     struct bufferevent *bev;
+    struct conn con;
 
     bev = bufferevent_socket_new(base, fd, BEV_OPT_CLOSE_ON_FREE);
     if (!bev) {
@@ -98,6 +106,12 @@ listener_cb(struct evconnlistener *listener, evutil_socket_t fd,
     bufferevent_setcb(bev, conn_readcb, conn_writecb, conn_eventcb, NULL);
     bufferevent_enable(bev, EV_WRITE);
     bufferevent_enable(bev, EV_READ);
+
+    con.fd = fd;
+    con.addr = *sa;
+    con.bev = bev;
+
+    conn_list.push_back(con);
 }
 
 static void
@@ -113,7 +127,6 @@ conn_writecb(struct bufferevent *bev, void *user_data)
     struct evbuffer *output = bufferevent_get_output(bev);
     if (evbuffer_get_length(output) == 0) {
         printf("flushed answer\n");
-        bufferevent_free(bev);
     }
 }
 
