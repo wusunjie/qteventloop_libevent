@@ -1,7 +1,11 @@
 #ifndef _NETCORE_H
 #define _NETCORE_H
 
-extern int mainloop(unsigned short port);
+#include <event2/event.h>
+
+extern int netcore_start(struct event_base *base, unsigned short port);
+
+extern int netcore_free(void);
 
 extern unsigned int conn_count(void);
 

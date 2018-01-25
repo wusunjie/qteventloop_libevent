@@ -1,7 +1,6 @@
 #include <string.h>
 #include <errno.h>
 #include <stdio.h>
-#include <signal.h>
 #ifndef _WIN32
 #include <netinet/in.h>
 # ifdef _XOPEN_SOURCE_EXTENDED
@@ -14,7 +13,6 @@
 #include <event2/buffer.h>
 #include <event2/listener.h>
 #include <event2/util.h>
-#include <event2/event.h>
 
 #include <list>
 #include <algorithm>
@@ -24,7 +22,6 @@ static void listener_cb(struct evconnlistener *, evutil_socket_t,
 static void conn_readcb(struct bufferevent *, void *);
 static void conn_writecb(struct bufferevent *, void *);
 static void conn_eventcb(struct bufferevent *, short, void *);
-static void signal_cb(evutil_socket_t, short, void *);
 
 struct conn {
     int fd;
@@ -34,24 +31,16 @@ struct conn {
 
 static std::list<struct conn> conn_list;
 
-int
-mainloop(unsigned short port)
-{
-    struct event_base *base;
-    struct evconnlistener *listener;
-    struct event *signal_event;
+static struct evconnlistener *listener;
 
+int
+netcore_start(struct event_base *base, unsigned short port)
+{
     struct sockaddr_in sin;
 #ifdef _WIN32
     WSADATA wsa_data;
     WSAStartup(0x0201, &wsa_data);
 #endif
-
-    base = event_base_new();
-    if (!base) {
-        fprintf(stderr, "Could not initialize libevent!\n");
-        return 1;
-    }
 
     memset(&sin, 0, sizeof(sin));
     sin.sin_family = AF_INET;
@@ -64,24 +53,22 @@ mainloop(unsigned short port)
 
     if (!listener) {
         fprintf(stderr, "Could not create a listener!\n");
-        return 1;
+        return -1;
     }
 
-    signal_event = evsignal_new(base, SIGINT, signal_cb, (void *)base);
-
-    if (!signal_event || event_add(signal_event, NULL)<0) {
-        fprintf(stderr, "Could not create/add a signal event!\n");
-        return 1;
-    }
-
-    event_base_dispatch(base);
-
-    evconnlistener_free(listener);
-    event_free(signal_event);
-    event_base_free(base);
-
-    printf("done\n");
     return 0;
+}
+
+int
+netcore_free(void)
+{
+    std::for_each(conn_list.begin(), conn_list.end(),
+        [](const struct conn &i)
+        {
+            bufferevent_free(i.bev);
+        });
+    conn_list.clear();
+    evconnlistener_free(listener);
 }
 
 unsigned int
@@ -143,21 +130,4 @@ conn_eventcb(struct bufferevent *bev, short events, void *user_data)
     /* None of the other events can happen here, since we haven't enabled
      * timeouts */
     bufferevent_free(bev);
-}
-
-static void
-signal_cb(evutil_socket_t sig, short events, void *user_data)
-{
-    struct event_base *base = (struct event_base *)user_data;
-    struct timeval delay = { 2, 0 };
-
-    printf("Caught an interrupt signal; exiting cleanly in two seconds.\n");
-
-    event_base_loopexit(base, &delay);
-
-    std::for_each(conn_list.begin(), conn_list.end(),
-        [](const struct conn &i)
-        {
-            bufferevent_free(i.bev);
-        });
 }
