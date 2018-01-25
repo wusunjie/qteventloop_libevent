@@ -25,15 +25,12 @@ static gboolean dispatch(GSource *source,
 
 static void finalize(GSource *source);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 GSourceFuncs source_funcs = {
-    prepare,
-    check,
-    dispatch,
-    finalize,
+    .prepare = prepare,
+    .check = check,
+    .dispatch = dispatch,
+    .finalize = finalize,
 };
-#pragma GCC diagnostic pop
 
 message_loop_glib::message_loop_glib():
     m_source(0)
@@ -54,9 +51,6 @@ message_loop_glib::~message_loop_glib()
 
 bool message_loop_glib::attach()
 {
-    // because eventfd created here, so postTask
-    // can't happened before attach,
-    // so, the initial value for eventfd is 0.
     if (-1 != m_event) {
         MessageLoopSource *source =
                 reinterpret_cast<MessageLoopSource *>(g_source_new(&source_funcs,
