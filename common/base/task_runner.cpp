@@ -2,10 +2,14 @@
 #include "bind.h"
 
 task_runner::task_runner():
-    m_stop(false),
-    m_mutex(PTHREAD_MUTEX_INITIALIZER)
+    m_stop(false)
 {
+    pthread_mutex_init(&m_mutex, NULL);
+}
 
+task_runner::~task_runner()
+{
+    pthread_mutex_destroy(&m_mutex);
 }
 
 void task_runner::start()

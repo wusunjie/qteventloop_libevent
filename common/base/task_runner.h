@@ -29,6 +29,8 @@ public:
 
     task_runner();
 
+    ~task_runner();
+
     void start();
 
     bool postTask(const Closure& task);
