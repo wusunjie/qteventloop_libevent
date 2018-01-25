@@ -28,9 +28,6 @@ Bind(Functor functor)
     typedef typename internal::FunctorTraits<Functor>::RunnableType RunnableType;
     typedef typename internal::FunctorTraits<Functor>::RunType RunType;
 
-    typedef internal::FunctionTraits<typename RunnableType::RunType>
-            BoundFunctorTraits;
-
     typedef internal::BindState<RunnableType, RunType, void()> BindState;
 
 
@@ -49,9 +46,6 @@ Bind(Functor functor, const P1& p1)
 {
     typedef typename internal::FunctorTraits<Functor>::RunnableType RunnableType;
     typedef typename internal::FunctorTraits<Functor>::RunType RunType;
-
-    typedef internal::FunctionTraits<typename RunnableType::RunType>
-            BoundFunctorTraits;
 
     typedef internal::BindState<RunnableType, RunType,
             void(typename internal::CallbackParamTraits<P1>::StorageType)> BindState;
@@ -72,9 +66,6 @@ Bind(Functor functor, const P1& p1, const P2& p2)
 {
     typedef typename internal::FunctorTraits<Functor>::RunnableType RunnableType;
     typedef typename internal::FunctorTraits<Functor>::RunType RunType;
-
-    typedef internal::FunctionTraits<typename RunnableType::RunType>
-            BoundFunctorTraits;
 
     typedef internal::BindState<RunnableType, RunType,
             void(typename internal::CallbackParamTraits<P1>::StorageType,
@@ -99,9 +90,6 @@ Bind(Functor functor, const P1& p1, const P2& p2, const P3& p3)
     typedef typename internal::FunctorTraits<Functor>::RunnableType RunnableType;
     typedef typename internal::FunctorTraits<Functor>::RunType RunType;
 
-    typedef internal::FunctionTraits<typename RunnableType::RunType>
-            BoundFunctorTraits;
-
     typedef internal::BindState<RunnableType, RunType,
             void(typename internal::CallbackParamTraits<P1>::StorageType,
                  typename internal::CallbackParamTraits<P2>::StorageType,
@@ -125,9 +113,6 @@ Bind(Functor functor, const P1& p1, const P2& p2, const P3& p3, const P4& p4)
 {
     typedef typename internal::FunctorTraits<Functor>::RunnableType RunnableType;
     typedef typename internal::FunctorTraits<Functor>::RunType RunType;
-
-    typedef internal::FunctionTraits<typename RunnableType::RunType>
-            BoundFunctorTraits;
 
     typedef internal::BindState<RunnableType, RunType,
             void(typename internal::CallbackParamTraits<P1>::StorageType,
@@ -157,9 +142,6 @@ Bind(Functor functor, const P1& p1, const P2& p2, const P3& p3, const P4& p4,
 {
     typedef typename internal::FunctorTraits<Functor>::RunnableType RunnableType;
     typedef typename internal::FunctorTraits<Functor>::RunType RunType;
-
-    typedef internal::FunctionTraits<typename RunnableType::RunType>
-            BoundFunctorTraits;
 
     typedef internal::BindState<RunnableType, RunType,
             void(typename internal::CallbackParamTraits<P1>::StorageType,
@@ -192,9 +174,6 @@ Bind(Functor functor, const P1& p1, const P2& p2, const P3& p3, const P4& p4,
     typedef typename internal::FunctorTraits<Functor>::RunnableType RunnableType;
     typedef typename internal::FunctorTraits<Functor>::RunType RunType;
 
-    typedef internal::FunctionTraits<typename RunnableType::RunType>
-            BoundFunctorTraits;
-
     typedef internal::BindState<RunnableType, RunType,
             void(typename internal::CallbackParamTraits<P1>::StorageType,
                  typename internal::CallbackParamTraits<P2>::StorageType,
@@ -226,9 +205,6 @@ Bind(Functor functor, const P1& p1, const P2& p2, const P3& p3, const P4& p4,
 {
     typedef typename internal::FunctorTraits<Functor>::RunnableType RunnableType;
     typedef typename internal::FunctorTraits<Functor>::RunType RunType;
-
-    typedef internal::FunctionTraits<typename RunnableType::RunType>
-            BoundFunctorTraits;
 
     typedef internal::BindState<RunnableType, RunType,
             void(typename internal::CallbackParamTraits<P1>::StorageType,
