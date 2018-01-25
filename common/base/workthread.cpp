@@ -31,6 +31,22 @@ void workthread_start(struct eventloop loop)
     pthread_create(&thread_id, NULL, threadentry, NULL);
 }
 
+void workthread_post(const Closure& task)
+{
+    uint64_t count = 1;
+    int ret = 0;
+
+    if (-1 == event) {
+        return;
+    }
+
+    runner.postTask(task);
+
+    do {
+        ret = write(event, &count, 8);
+    } while ((ret < 0) && (EAGAIN == errno));
+}
+
 void workthread_stop(void)
 {
     uint64_t count = 1;

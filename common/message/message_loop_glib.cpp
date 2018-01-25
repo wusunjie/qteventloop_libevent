@@ -82,7 +82,7 @@ bool message_loop_glib::detach()
             m_event = -1;
             return true;
         }
-        m_source = NULL;
+        m_source = 0;
     }
     return false;
 }
@@ -123,7 +123,7 @@ static gboolean check(GSource *source)
     if (G_IO_IN & loop->event.revents) {
         int ret = 0;
         do {
-            ret = read(fd, &count, 8);
+            ret = read(loop->event.fd, &count, 8);
         } while ((ret < 0) && (EAGAIN == errno));
         if (-1 != ret) {
             loop->have_work = true;
