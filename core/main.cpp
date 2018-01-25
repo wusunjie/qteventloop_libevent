@@ -15,6 +15,8 @@ static void netcore_setup(struct event_base *base);
 
 int main(int argc, char *argv[])
 {
+    eventloop loop;
+
     if (argc < 2) {
         return -1;
     }
@@ -35,7 +37,10 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    workthread_start(netcore_setup);
+    loop.loop_setup = netcore_setup;
+    loop.loop_free = netcore_free;
+
+    workthread_start(loop);
 
     return 0;
 }

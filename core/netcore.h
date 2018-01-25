@@ -5,7 +5,7 @@
 
 extern int netcore_start(struct event_base *base, unsigned short port);
 
-extern int netcore_free(void);
+extern void netcore_free(void);
 
 extern unsigned int conn_count(void);
 

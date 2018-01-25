@@ -9,21 +9,26 @@
 #include <errno.h>
 
 #include "base/task_runner.h"
-
-typedef void (*workthread_setup)(struct event_base *base);
+#include "base/workthread.h"
 
 static task_runner runner;
 static pthread_t thread_id;
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 static int event = -1;
+static int running = 0;
+static struct eventloop local_loop;
 
 static void event_read(evutil_socket_t fd, short event, void *arg);
 static void *threadentry(void *argv);
 
-void workthread_start(workthread_setup setup)
+void workthread_start(struct eventloop loop)
 {
-    pthread_create(&thread_id, NULL, threadentry, (void *)setup);
+    running = 1;
+    local_loop = loop;
+    pthread_cond_init(&cond, NULL);
+    pthread_mutex_init(&mutex, NULL);
+    pthread_create(&thread_id, NULL, threadentry, NULL);
 }
 
 void workthread_stop(void)
@@ -45,8 +50,13 @@ void workthread_stop(void)
 void workthread_wait(void)
 {
     pthread_mutex_lock(&mutex);
-    pthread_cond_wait(&cond, &mutex);
+    while (running) {
+        pthread_cond_wait(&cond, &mutex);
+    }
     pthread_mutex_unlock(&mutex);
+
+    pthread_cond_destroy(&cond);
+    pthread_mutex_destroy(&mutex);
 }
 
 static void
@@ -72,7 +82,8 @@ event_read(evutil_socket_t fd, short event, void *arg)
 static void *threadentry(void *argv)
 {
     struct event_base *base;
-    workthread_setup setup = (workthread_setup)argv;
+
+    pthread_detach(pthread_self());
 
     base = event_base_new();
     if (!base) {
@@ -93,20 +104,25 @@ static void *threadentry(void *argv)
         event_add(ev, NULL);
     }
 
-    if (setup) {
-        setup(base);
+    if (local_loop.loop_setup) {
+        local_loop.loop_setup(base);
     }
 
     event_base_dispatch(base);
 
-    event_del(ev);
-
     event_base_free(base);
+
+    event_del(ev);
 
     close(event);
 
+    if (local_loop.loop_free) {
+        local_loop.loop_free();
+    }
+
     pthread_mutex_lock(&mutex);
-    pthread_cond_broadcast(&cond);
+    running = 0;
+    pthread_cond_signal(&cond);
     pthread_mutex_unlock(&mutex);
 
     return NULL;

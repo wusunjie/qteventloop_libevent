@@ -3,7 +3,14 @@
 
 typedef void (*workthread_setup)(struct event_base *base);
 
-extern void workthread_start(workthread_setup setup);
+typedef void (*workthread_free)(void);
+
+struct eventloop {
+	workthread_setup loop_setup;
+	workthread_free loop_free;
+};
+
+extern void workthread_start(struct eventloop loop);
 
 extern void workthread_stop(void);
 

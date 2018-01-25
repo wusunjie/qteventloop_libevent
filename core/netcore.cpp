@@ -59,7 +59,7 @@ netcore_start(struct event_base *base, unsigned short port)
     return 0;
 }
 
-int
+void
 netcore_free(void)
 {
     std::for_each(conn_list.begin(), conn_list.end(),
