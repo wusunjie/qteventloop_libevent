@@ -73,17 +73,16 @@ bool message_loop_glib::detach()
 {
     guint64 count = 1;
     if (m_source) {
+        int ret = 0;
         m_runner.postStopTask();
-        if (-1 != write(m_event, &count, 8)) {
+        do {
+            ret = write(m_event, &count, 8);
+        } while ((ret < 0) && (EAGAIN == errno));
+        if (-1 != ret) {
             m_event = -1;
             return true;
         }
-        else if (EAGAIN == errno) {
-            // the message queue is full, just
-            // just discard this post now, post
-            // will become valid after some task processed.
-        }
-        m_source = 0;
+        m_source = NULL;
     }
     return false;
 }
@@ -95,14 +94,13 @@ bool message_loop_glib::postTask(const Closure& task)
         // notify glib mainloop that there is one task
         // to be called.
         if (-1 != m_event) {
+            int ret = 0;
             m_runner.postTask(task);
-            if (-1 != write(m_event, &count, 8)) {
+            do {
+                ret = write(m_event, &count, 8);
+            } while ((ret < 0) && (EAGAIN == errno));
+            if (-1 != ret) {
                 return true;
-            }
-            else if (EAGAIN == errno) {
-                // the message queue is full, just
-                // just discard this post now, post
-                // will become valid after some task processed.
             }
         }
     }
@@ -123,12 +121,12 @@ static gboolean check(GSource *source)
     guint64 count = 0;
     MessageLoopSource *loop = reinterpret_cast<MessageLoopSource *>(source);
     if (G_IO_IN & loop->event.revents) {
-        if (-1 != read(loop->event.fd, &count, 8)) {
+        int ret = 0;
+        do {
+            ret = read(fd, &count, 8);
+        } while ((ret < 0) && (EAGAIN == errno));
+        if (-1 != ret) {
             loop->have_work = true;
-        }
-        else if (EAGAIN == errno) {
-            // poll success on G_IO_IN implies read on evenfd counter
-            // is greater than 0, so this case will not reach.
         }
     }
     return loop->have_work;
