@@ -115,7 +115,7 @@ bool message_loop_glib::postTask(const Closure& task)
     return false;
 }
 
-gboolean prepare(GSource *source, gint *timeout_)
+static gboolean prepare(GSource *source, gint *timeout_)
 {
     MessageLoopSource *loop = reinterpret_cast<MessageLoopSource *>(source);
     if (timeout_) {
@@ -124,7 +124,7 @@ gboolean prepare(GSource *source, gint *timeout_)
     return FALSE;
 }
 
-gboolean check(GSource *source)
+static gboolean check(GSource *source)
 {
     guint64 count = 0;
     MessageLoopSource *loop = reinterpret_cast<MessageLoopSource *>(source);
@@ -141,7 +141,7 @@ gboolean check(GSource *source)
 }
 
 // TODO: remove source when receive stop task.
-gboolean dispatch(GSource *source,
+static gboolean dispatch(GSource *source,
                   GSourceFunc callback, gpointer user_data)
 {
     MessageLoopSource *loop = reinterpret_cast<MessageLoopSource *>(source);
@@ -152,7 +152,7 @@ gboolean dispatch(GSource *source,
     return loop->runner->isRunning();
 }
 
-void finalize(GSource *source)
+static void finalize(GSource *source)
 {
     (void)source;
     // do nothing.
