@@ -17,6 +17,7 @@
 #include <event2/event.h>
 
 #include <list>
+#include <algorithm>
 
 static void listener_cb(struct evconnlistener *, evutil_socket_t,
     struct sockaddr *, int socklen, void *);
@@ -153,4 +154,10 @@ signal_cb(evutil_socket_t sig, short events, void *user_data)
     printf("Caught an interrupt signal; exiting cleanly in two seconds.\n");
 
     event_base_loopexit(base, &delay);
+
+    std::for_each(conn_list.begin(), conn_list.end(),
+        [](const struct conn &i)
+        {
+            bufferevent_free(i.bev);
+        });
 }
