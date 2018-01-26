@@ -19,7 +19,7 @@ $(CORE_OBJS): $(CORE_SRC)
 	gcc -Wall -g -std=c++11 `pkg-config --cflags libevent` -I$(CORE_INC) -c $^
 
 boardchecker: $(CORE_OBJS) $(COMMON_OBJS)
-	gcc -g $^ -o $@ `pkg-config --libs libevent glib-2.0` -pthread
+	g++ -g $^ -o $@ `pkg-config --libs libevent glib-2.0` -pthread
 
 clean-objs:
 	rm -rf $(COMMON_OBJS) $(CORE_OBJS)
