@@ -31,8 +31,6 @@ public:
 
     void release();
 
-    int referenceCount();
-
 protected:
     virtual ~RefCountedObject()
     {
@@ -45,12 +43,6 @@ private:
     std::atomic<int> m_counter;
 
 };
-
-inline int RefCountedObject::referenceCount()
-{
-    return m_counter;
-}
-
 
 inline void RefCountedObject::duplicate()
 {
