@@ -8,7 +8,9 @@ CORE_SRC_NOTDIR = $(notdir $(CORE_SRC))
 CORE_OBJS = $(patsubst %.cpp, %.o, $(CORE_SRC_NOTDIR))
 CORE_INC = common
 
-all: boardchecker
+.PHONY: clean-objs
+
+all: boardchecker clean-objs
 
 $(COMMON_OBJS): $(COMMON_SRC)
 	gcc -Wall -g -std=c++11 `pkg-config --cflags libevent glib-2.0` -I$(COMMON_INC) -c $^
@@ -19,5 +21,8 @@ $(CORE_OBJS): $(CORE_SRC)
 boardchecker: $(CORE_OBJS) $(COMMON_OBJS)
 	g++ -g $^ -o $@ `pkg-config --libs libevent glib-2.0` -pthread
 
+clean-objs:
+	rm -rf $(COMMON_OBJS) $(CORE_OBJS)
+
 clean:
-	rm -rf boardchecker $(COMMON_OBJS) $(CORE_OBJS)
+	rm -rf boardchecker
