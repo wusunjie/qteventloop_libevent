@@ -13,7 +13,7 @@
 
 #include <queue>
 
-#include <pthread.h>
+#include <mutex>              // std::mutex, std::unique_lock
 #include "callback.h"
 
 /**
@@ -28,8 +28,6 @@ class task_runner
 public:
 
     task_runner();
-
-    ~task_runner();
 
     void start();
 
@@ -51,7 +49,7 @@ private:
 
     std::queue<Closure> m_tasks;
 
-    pthread_mutex_t m_mutex;
+    std::mutex m_mutex;
 
 };
 

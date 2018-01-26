@@ -11,6 +11,8 @@
 #   error ERROR: This file requires C++ compilation (use a .cpp suffix)
 #endif
 
+#include <atomic>
+
 /**
  * @brief
  *
@@ -40,7 +42,7 @@ private:
     RefCountedObject(const RefCountedObject&);
     RefCountedObject& operator = (const RefCountedObject&);
 
-    int m_counter;
+    std::atomic<int> m_counter;
 
 };
 
@@ -52,13 +54,13 @@ inline int RefCountedObject::referenceCount()
 
 inline void RefCountedObject::duplicate()
 {
-    __sync_add_and_fetch(&m_counter, 1);
+    m_counter.fetch_add(1);
 }
 
 
 inline void RefCountedObject::release()
 {
-    if (__sync_sub_and_fetch(&m_counter, 1) == 0) {
+    if (m_counter.fetch_sub(1) == 1) {
         delete this;
     }
 }
