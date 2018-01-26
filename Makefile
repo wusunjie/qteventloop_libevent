@@ -11,7 +11,7 @@ CORE_INC = common
 all: boardchecker
 
 $(COMMON_OBJS): $(COMMON_SRC)
-	gcc -Wall -g -std=c++11 `pkg-config --cflags glib-2.0` -I$(COMMON_INC) -c $^
+	gcc -Wall -g -std=c++11 `pkg-config --cflags libevent glib-2.0` -I$(COMMON_INC) -c $^
 
 $(CORE_OBJS): $(CORE_SRC)
 	gcc -Wall -g -std=c++11 `pkg-config --cflags libevent` -I$(CORE_INC) -c $^
