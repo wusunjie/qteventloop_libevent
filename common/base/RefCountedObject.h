@@ -47,7 +47,6 @@ inline void RefCountedObject::duplicate()
     __sync_add_and_fetch(&m_counter, 1);
 }
 
-
 inline void RefCountedObject::release()
 {
     if (__sync_sub_and_fetch(&m_counter, 1) == 0) {

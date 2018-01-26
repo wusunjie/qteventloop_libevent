@@ -57,8 +57,7 @@ bool task_runner::isRunning()
 bool task_runner::checkEmpty()
 {
     std::unique_lock<std::mutex> lck(m_mutex);
-    bool ret = m_tasks.empty();
-    return ret;
+    return m_tasks.empty();
 }
 
 void task_runner::stopRunner()
