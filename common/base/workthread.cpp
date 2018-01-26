@@ -98,6 +98,8 @@ static void threadentry(void)
 {
     struct event_base *base;
 
+    thread_id.detach();
+
     base = event_base_new();
     if (!base) {
         fprintf(stderr, "Could not initialize libevent!\n");
