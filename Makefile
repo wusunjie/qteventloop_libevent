@@ -8,7 +8,7 @@ CORE_SRC_NOTDIR = $(notdir $(CORE_SRC))
 CORE_OBJS = $(patsubst %.cpp, %.o, $(CORE_SRC_NOTDIR))
 CORE_INC = common
 
-.PHONY: clean-objs
+.PHONY: clean-objs clean
 
 all: boardchecker clean-objs
 
